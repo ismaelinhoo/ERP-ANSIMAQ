@@ -43,7 +43,32 @@ menu = st.sidebar.radio("Menú", [
 ])
 
 if menu == "Inicio":
-    st.title("Ansimaq") # menú de inicio debe contener los generadores disponibles y pagos por realizar
+    st.title("Ansimaq")
+
+    # Cargar generadores desde equipos (puedes ajustar según tu BD)
+    df_equipos = cargar_equipos()
+    generadores_disponibles = df_equipos[df_equipos["estado"] == 1]["nombre_modelo"].unique()  # Asumo estado=1 es disponible
+
+    st.header("Generadores disponibles")
+    if len(generadores_disponibles) > 0:
+        for gen in generadores_disponibles:
+            st.write(f"- {gen}")
+    else:
+        st.write("No hay generadores disponibles actualmente.")
+
+    # Cargar pagos pendientes (ejemplo: pagos donde columna 'pagado' sea False o estado pendiente)
+    df_cobros = cargar_cobros()
+
+    # Ajusta el filtro según tu tabla. Ejemplo asumiendo que hay columna 'estado' o 'pagado'
+    pagos_pendientes = df_cobros[df_cobros["pagado"] == False] if "pagado" in df_cobros.columns else df_cobros
+
+    st.header("Pagos pendientes")
+    if not pagos_pendientes.empty:
+        for _, pago in pagos_pendientes.iterrows():
+            st.write(f"Cliente: {pago['cliente']} | Monto: ${pago['monto']} | Fecha límite: {pago['fecha_limite']}")
+    else:
+        st.write("No hay pagos pendientes.")
+
 
 
 elif menu == "Equipos": 
